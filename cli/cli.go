@@ -2,17 +2,17 @@ package cli
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"marckent/dictionary/domain"
-	"os"
 	"time"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 type App struct {
-	label, definition, action string
-	dictionary                domain.Dictionary
+	word, definition, action string
+	dictionary               domain.Dictionary
 }
 
 func (l *App) Init(dictionary domain.Dictionary) {
@@ -20,10 +20,7 @@ func (l *App) Init(dictionary domain.Dictionary) {
 }
 
 func (l *App) Start() (err error) {
-	err = l.getActionAndArgs()
-	if err != nil {
-		return
-	}
+	l.getActionAndArgs()
 
 	err = l.actionValidator()
 	if err != nil {
@@ -35,35 +32,32 @@ func (l *App) Start() (err error) {
 	return
 }
 
-func (l *App) getActionAndArgs() (err error) {
+func (l *App) getActionAndArgs() {
 
-	args := os.Args
-	if args[1] != "-action" {
-		err = errors.New("unknown command")
+	action := flag.String("action", "list", "dictionary action")
+	flag.Parse()
+	args := flag.Args()
+
+	l.action = *action
+
+	if len(args) >= 1 {
+		l.word = args[0]
 	}
 
-	for key, v := range args[2:] {
-		switch key {
-		case 0:
-			l.action = v
-		case 1:
-			l.label = v
-		case 2:
-			l.definition = v
-		}
+	if len(args) >= 2 {
+		l.definition = args[1]
 	}
-	return
 }
 
 func (l *App) actionValidator() (err error) {
-	isLabelEmpty := l.label == ""
+	isWordEmpty := l.word == ""
 	isDefEmpty := l.definition == ""
 
 	if l.action == "list" {
 		return
 	}
 
-	if isLabelEmpty {
+	if isWordEmpty {
 		err = errors.New("word is missed")
 		return
 	}
@@ -88,12 +82,12 @@ func (l *App) execute() (err error) {
 		l.displayWords(words)
 
 	case "add":
-		l.dictionary.AddWord(l.label, l.definition)
+		l.dictionary.AddWord(l.word, l.definition)
 	case "show":
-		entry := l.dictionary.GetWord(l.label)
+		entry := l.dictionary.GetWord(l.word)
 		l.displayWords([]domain.WordEntry{entry})
 	case "remove":
-		l.dictionary.RemoveWord(l.label)
+		l.dictionary.RemoveWord(l.word)
 	default:
 		err = errors.New("unknown action")
 	}
