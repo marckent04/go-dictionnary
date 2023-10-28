@@ -64,20 +64,7 @@ func (w *WordDb) GetAll() (result []domain.WordEntry, err error) {
 		return err
 	})
 
-	return
-}
-
-func (w *WordDb) iterate(it *badger.Iterator) (result []domain.WordEntry, err error) {
-
-	for it.Rewind(); it.Valid(); it.Next() {
-		item := it.Item()
-
-		err = item.Value(func(v []byte) error {
-			result = append(result, shared.DecodeStruct[domain.WordEntry](v))
-			return nil
-		})
-	}
-
+	result = sortWords(result)
 	return
 }
 
