@@ -7,6 +7,10 @@
 - [X] List all dictionary words
 - [X] Remove a word from the dictionary
 - [X] Get specific word definition
+- [ ] add tag
+- [ ] search by tag
+- [ ] sort by date
+- [ ] sort by tag
 - [ ] Unit tests
 - [ ] e2e tests
 
